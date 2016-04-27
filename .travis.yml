@@ -1,0 +1,14 @@
+language: node_js
+install:
+    - npm install -g istanbul
+    - npm install -g codeclimate-test-reporter
+    - npm install
+    - npm install codecov.io
+node_js:
+    - 5
+script:
+    - npm test
+    - istanbul cover node_modules/mocha/bin/_mocha -- tests --recursive
+after_script:
+    - codeclimate < coverage/lcov.info
+    - node_modules/codecov.io/bin/codecov.io.js < coverage/coverage.json
