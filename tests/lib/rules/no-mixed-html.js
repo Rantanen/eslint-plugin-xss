@@ -106,6 +106,7 @@ ruleTester.run( 'require-encode', rule, {
         'html = /*safe*/ en_us.format( htmlInputttttt )',
 
         'x = /*safe*/ "This is not <html>"',
+        'html = "<div>" + /*safe*/ input + "</div>"',
         'text = /*safe*/ stuffAsHtml()',
         'html = /*safe*/ getElement()',
         'html = /*safe*/ getElement()',
