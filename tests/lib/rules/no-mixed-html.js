@@ -2,6 +2,8 @@
  * @fileoverview Checks for missing encoding when concatenating HTML strings
  * @author Mikko Rantanen
  */
+
+/* eslint max-len: 0, xss/no-mixed-html: 0 */
 'use strict';
 
 // -----------------------------------------------------------------------------
@@ -23,38 +25,40 @@ ruleTester.run( 'require-encode', rule, {
     valid: [
         'var x = text',
         'x = text',
+        'y = x = text',
         'obj.x = text',
         'foo( text )',
         'x.foo( text )',
         'html.foo( text )',
         {
             code: 'test.html( html )',
-            options: [ { unsafe: [ '.html()' ] } ]
+            options: [ { functions: { '.html': { htmlInput: true, htmlOutput: true } } } ]
         },
         {
             code: '$( html )',
-            options: [ { unsafe: [ '$()' ] } ]
+            options: [ { functions: { '$': { htmlInput: true } } } ]
         },
         {
             code: 'test.html( \'<img src="zwK7XG6.gif">\' )',
-            options: [ { unsafe: [ '.html()' ] } ]
+            options: [ { functions: { '.html': { htmlInput: true } } } ],
         },
         'var x = "a" + "b";',
         {
             code: 'var html = "<div>" + encode( foo() ) + "</div>"',
-            options: [ { encoders: [ 'encode()' ] } ]
+            options: [ { functions: { 'encode': { htmlOutput: true } } } ]
         },
         {
             code: 'var html = "<div>" + he.encode( foo() ) + "</div>"',
-            options: [ { encoders: [ 'he.encode()' ] } ]
+            options: [ { functions: { 'he.encode': { htmlOutput: true } } } ]
         },
         'x = text;',
         'x = "a" + "b";',
         {
             code: 'html = "<div>" + encode( foo() ) + "</div>"',
-            options: [ { encoders: [ 'encode()' ] } ]
+            options: [ { functions: { 'encode': { htmlOutput: true } } } ]
         },
         'asHtml = varHtml',
+        'asHtml = htmlToo = varHtml',
         'htmlEncode = function() {}',
         'decode = function( html ) {}',
 
@@ -62,18 +66,44 @@ ruleTester.run( 'require-encode', rule, {
         'mapping = { html: "<div>" }',
         'values = [ "value" ]',
         'values = [ text ]',
-        'htmlItems = [ html ].join()',
         'text = html ? "a" : "b"',
         'text = html ? foo : bar',
         'html = html ? "<div>" : "b"',
         {
             code: 'encoded = "<div>"',
-            options: [ { variableNameRule: [ 'encoded' ] } ]
+            options: [ { htmlVariableRules: [ 'encoded' ] } ]
         },
         {
             code: 'asEncoded = "<div>"',
-            options: [ { variableNameRule: [ 'encoded', 'i' ] } ]
+            options: [ { htmlVariableRules: [ 'encoded/i' ] } ]
         },
+
+        'htmlItems = [ html ].join()',
+        {
+            code: 'htmlItems = assert( html )',
+            options: [ { functions: { assert: { passthrough: { args: true } } } } ]
+        },
+        {
+            code: 'text = assert( input )',
+            options: [ { functions: { assert: { passthrough: { args: true } } } } ]
+        },
+        {
+            code: 'text = en_us.format( input )',
+            options: [ { functions: { '.format': { passthrough: { args: true } } } } ]
+        },
+        {
+            code: 'html = en_us.format( htmlInput )',
+            options: [ { functions: { '.format': { passthrough: { args: true } } } } ]
+        },
+        {
+            code: 'text = str.format( en_us )',
+            options: [ { functions: { '.format': { passthrough: { obj: true } } } } ]
+        },
+        {
+            code: 'html = htmlStr.format( en_us )',
+            options: [ { functions: { '.format': { passthrough: { obj: true } } } } ]
+        },
+        'html = /*safe*/ en_us.format( htmlInputttttt )',
 
         'x = /*safe*/ "This is not <html>"',
         'text = /*safe*/ stuffAsHtml()',
@@ -81,9 +111,81 @@ ruleTester.run( 'require-encode', rule, {
         'html = /*safe*/ getElement()',
         'x = /*safe*/ "This is not <html>" + text',
         'text = /*safe*/ stuffAsHtml() + text',
-        'texttttt = /*safe*/ ( "<div>" + "</div>" )',
+        'text = /*safe*/ ( "<div>" + "</div>" )',
         'obj = { fooHtml: stuffAsHtml() }',
         'obj = { foo: stuff() }',
+        {
+            code: 'html = foo.asHtml()',
+            options: [ { htmlFunctionRules: [ '\.asHtml$' ] } ]
+        },
+        {
+            code: 'html = fullHtml.left( offset )',
+            options: [ { functions: { '.left': { passthrough: { obj: true } } } } ]
+        },
+        {
+            code: '$( document )',
+            options: [ { functions: { '$': { htmlInput: true, safe: [ 'document' ] } } } ],
+        },
+        {
+            code: '$( ".foo" )',
+            options: [ { functions: { '$': { htmlInput: true, safe: [ 'document' ] } } } ],
+        },
+        {
+            code: '$( "#item-" + CSS.escape( id ) )',
+            options: [ { functions: {
+                '$': { htmlInput: true, safe: [ 'document' ] },
+                'CSS.escape': { htmlOutput: true }
+            } } ],
+        },
+        'htmlArrs = [ /*safe*/ [ "<div>" ], /*safe*/ [ "<div>" ] ]',
+        'htmlArrs = /*safe*/ [ [ "<div>" ], [ "<div>" ] ]',
+
+        'html = function() { return "<div>" }',
+        'text = function() { return input }',
+        'text = function( html ) { return input }',
+        '(function() { return "<div>" })',
+        '(function() { return input })',
+        {
+            parserOptions: { ecmaVersion: 6 },
+            code: '(() => "<div>")',
+        },
+        {
+            parserOptions: { ecmaVersion: 6 },
+            code: '(() => html)',
+        },
+        {
+            parserOptions: { ecmaVersion: 6 },
+            code: 'text = (html) => input',
+        },
+        {
+            parserOptions: { ecmaVersion: 6 },
+            code: '(() => input)',
+        },
+        {
+            parserOptions: { ecmaVersion: 6 },
+            code: 'html = () => { return "<div>" }',
+        },
+        {
+            parserOptions: { ecmaVersion: 6 },
+            code: 'text = () => { return input }',
+        },
+        {
+            parserOptions: { ecmaVersion: 6 },
+            code: 'text = ( html ) => { return input }',
+        },
+        {
+            parserOptions: { ecmaVersion: 6 },
+            code: '(() => { return "<div>" })',
+        },
+        {
+            parserOptions: { ecmaVersion: 6 },
+            code: '(() => { return input })',
+        },
+
+        'html',
+        'text',
+        '"use strict"',
+        '"<div>"',
     ],
 
     invalid: [
@@ -108,7 +210,7 @@ ruleTester.run( 'require-encode', rule, {
         },
         {
             code: 'x.html( "<div>" + text + "</div>" )',
-            options: [ { unsafe: [ '.html()' ] } ],
+            options: [ { functions: { '.html': { htmlInput: true } } } ],
             errors: [ {
                 message: 'Unencoded input \'text\' used in HTML context',
             } ]
@@ -128,7 +230,7 @@ ruleTester.run( 'require-encode', rule, {
         },
         {
             code: 'x.html( text )',
-            options: [ { unsafe: [ '.html()' ] } ],
+            options: [ { functions: { '.html': { htmlInput: true } } } ],
             errors: [ {
                 message: 'Unencoded input \'text\' used in HTML context',
             } ]
@@ -155,13 +257,13 @@ ruleTester.run( 'require-encode', rule, {
         {
             code: 'x( asHtml )',
             errors: [ {
-                message: 'HTML passed in to function \'x()\'',
+                message: 'HTML passed in to function \'x\'',
             } ]
         },
         {
             code: 'foo.x( asHtml )',
             errors: [ {
-                message: 'HTML passed in to function \'foo.x()\'',
+                message: 'HTML passed in to function \'foo.x\'',
             } ]
         },
 
@@ -180,13 +282,13 @@ ruleTester.run( 'require-encode', rule, {
         {
             code: 'x( obj.html )',
             errors: [ {
-                message: 'HTML passed in to function \'x()\'',
+                message: 'HTML passed in to function \'x\'',
             } ]
         },
         {
             code: 'foo.x( obj.html )',
             errors: [ {
-                message: 'HTML passed in to function \'foo.x()\'',
+                message: 'HTML passed in to function \'foo.x\'',
             } ]
         },
 
@@ -205,19 +307,19 @@ ruleTester.run( 'require-encode', rule, {
         {
             code: 'x( "<div>" )',
             errors: [ {
-                message: 'HTML passed in to function \'x()\'',
+                message: 'HTML passed in to function \'x\'',
             } ]
         },
         {
             code: 'foo.x( "<div>" )',
             errors: [ {
-                message: 'HTML passed in to function \'foo.x()\'',
+                message: 'HTML passed in to function \'foo.x\'',
             } ]
         },
 
         {
             code: 'foo.stuff( doc.html( text ) )',
-            options: [ { unsafe: [ '.html()' ] } ],
+            options: [ { functions: { '.html': { htmlInput: true } } } ],
             errors: [ {
                 message: 'Unencoded input \'text\' used in HTML context',
             } ]
@@ -263,7 +365,7 @@ ruleTester.run( 'require-encode', rule, {
 
         {
             code: 'text = encode( text )',
-            options: [ { encoders: [ 'encode()' ] } ],
+            options: [ { functions: { 'encode': { htmlOutput: true } } } ],
             errors: [ {
                 message: 'Non-HTML variable \'text\' is used to store raw HTML'
             } ]
@@ -289,35 +391,35 @@ ruleTester.run( 'require-encode', rule, {
         },
         {
             code: 'text = encode( "foo" )',
-            options: [ { encoders: [ 'encode()' ] } ],
+            options: [ { functions: { 'encode': { htmlOutput: true } } } ],
             errors: [
                 { message: 'Non-HTML variable \'text\' is used to store raw HTML' }
             ]
         },
         {
             code: 'var foo = function() { return "<div>"; }',
-            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            options: [ { htmlFunctionRules: [ 'AsHtml$' ] } ],
             errors: [
                 { message: 'Non-HTML function \'foo\' returns HTML content' }
             ]
         },
         {
             code: 'var foo = function bar() { return "<div>"; }',
-            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            options: [ { htmlFunctionRules: [ 'AsHtml$' ] } ],
             errors: [
                 { message: 'Non-HTML function \'bar\' returns HTML content' }
             ]
         },
         {
             code: 'function bar() { return "<div>"; }',
-            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            options: [ { htmlFunctionRules: [ 'AsHtml$' ] } ],
             errors: [
                 { message: 'Non-HTML function \'bar\' returns HTML content' }
             ]
         },
         {
             code: 'function bar() { return barAsHtml(); }',
-            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            options: [ { htmlFunctionRules: [ 'AsHtml$' ] } ],
             errors: [
                 { message: 'Non-HTML function \'bar\' returns HTML content' }
             ]
@@ -325,7 +427,7 @@ ruleTester.run( 'require-encode', rule, {
         {
             parserOptions: { ecmaVersion: 6 },
             code: 'var bar = y => "<div>"',
-            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            options: [ { htmlFunctionRules: [ 'AsHtml$' ] } ],
             errors: [
                 { message: 'Non-HTML function \'bar\' returns HTML content' }
             ]
@@ -333,21 +435,21 @@ ruleTester.run( 'require-encode', rule, {
 
         {
             code: 'var fooAsHtml = function() { return value; }',
-            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            options: [ { htmlFunctionRules: [ 'AsHtml$' ] } ],
             errors: [
                 { message: 'Unencoded input \'value\' used in HTML context' }
             ]
         },
         {
             code: 'var foo = function barAsHtml() { return input; }',
-            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            options: [ { htmlFunctionRules: [ 'AsHtml$' ] } ],
             errors: [
                 { message: 'Unencoded input \'input\' used in HTML context' }
             ]
         },
         {
             code: 'function barAsHtml() { return bar; }',
-            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            options: [ { htmlFunctionRules: [ 'AsHtml$' ] } ],
             errors: [
                 { message: 'Unencoded input \'bar\' used in HTML context' }
             ]
@@ -355,7 +457,7 @@ ruleTester.run( 'require-encode', rule, {
         {
             parserOptions: { ecmaVersion: 6 },
             code: 'var barAsHtml = y => y',
-            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            options: [ { htmlFunctionRules: [ 'AsHtml$' ] } ],
             errors: [
                 { message: 'Unencoded input \'y\' used in HTML context' }
             ]
@@ -363,19 +465,25 @@ ruleTester.run( 'require-encode', rule, {
 
         {
             code: 'var foo = fooAsHtml()',
-            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            options: [ { htmlFunctionRules: [ 'AsHtml$' ] } ],
             errors: [
                 { message: 'Non-HTML variable \'foo\' is used to store raw HTML' }
             ]
         },
         {
             code: 'var html = foo()',
-            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            options: [ { htmlFunctionRules: [ 'AsHtml$' ] } ],
             errors: [
                 { message: 'Unencoded return value from function \'foo\' used in HTML context' }
             ]
         },
 
+        {
+            code: 'x = /*foobar*/ "This is not <html>"',
+            errors: [
+                { message: 'Non-HTML variable \'x\' is used to store raw HTML' }
+            ]
+        },
         {
             code: 'x = /*safe*/ "This is not <html>" + html',
             errors: [
@@ -398,6 +506,115 @@ ruleTester.run( 'require-encode', rule, {
             code: 'obj = { foo: stuffAsHtml() }',
             errors: [
                 { message: 'Non-HTML variable \'foo\' is used to store raw HTML' }
+            ]
+        },
+        {
+            code: 'arr = [ {}, "<div>" ]',
+            errors: [
+                { message: 'Non-HTML variable \'arr\' is used to store raw HTML' },
+                { message: 'Unencoded input \'[Object]\' used in HTML context' },
+            ]
+        },
+        {
+            code: 'arr = [ [], "<div>" ]',
+            errors: [
+                { message: 'Non-HTML variable \'arr\' is used to store raw HTML' },
+                { message: 'Unencoded input \'[Array]\' used in HTML context' },
+            ]
+        },
+        {
+            code: 'htmlArr = [ {}, "<div>" ]',
+            errors: [
+                { message: 'Unencoded input \'[Object]\' used in HTML context' },
+            ]
+        },
+        {
+            code: 'htmlArr = [ [], "<div>" ]',
+            errors: [
+                { message: 'Unencoded input \'[Array]\' used in HTML context' },
+            ]
+        },
+        {
+            code: 'html = [ html ].join()',
+            options: [ { functions: { '.join': {} } } ],
+            errors: [
+                { message: 'HTML passed in to function \'[ html ].join\'' },
+                { message: 'Unencoded return value from function \'[ html ].join\' used in HTML context' },
+            ]
+        },
+        {
+            code: 'text = assert( "<div>" )',
+            options: [ { functions: { 'assert': { passthrough: { args: true } } } } ],
+            errors: [
+                { message: 'Non-HTML variable \'text\' is used to store raw HTML' },
+            ]
+        },
+        {
+            code: 'text = assert( "<div>" )',
+            errors: [
+                { message: 'HTML passed in to function \'assert\'' },
+            ]
+        },
+        {
+            code: 'text = assert( getHtml() )',
+            options: [ { functions: {
+                assert: { passthrough: { args: true } },
+                getHtml: { htmlOutput: true },
+            } } ],
+            errors: [
+                { message: 'Non-HTML variable \'text\' is used to store raw HTML' },
+            ]
+        },
+        {
+            code: 'html = assert( input )',
+            options: [ { functions: {
+                assert: { passthrough: { args: true } },
+                getHtml: { htmlOutput: true },
+            } } ],
+            errors: [ { message: 'Unencoded input \'input\' used in HTML context' }, ]
+        },
+        {
+            code: 'html = en_us.format( input )',
+            options: [ { functions: { '.format': { passthrough: { obj: true } } } } ],
+            errors: [ { message: 'Unencoded input \'en_us\' used in HTML context' }, ]
+        },
+        {
+            code: 'html = en_us.format( htmlInput )',
+            options: [ { functions: { '.format': { passthrough: { obj: true } } } } ],
+            errors: [
+                { message: 'HTML passed in to function \'en_us.format\'' },
+                { message: 'Unencoded input \'en_us\' used in HTML context' },
+            ]
+        },
+        {
+            code: 'html = foo.format( en_us )',
+            options: [ { functions: { '.format': { passthrough: { args: true } } } } ],
+            errors: [ { message: 'Unencoded input \'en_us\' used in HTML context' }, ]
+        },
+        {
+            code: 'html = htmlStr.format( en_us )',
+            options: [ { functions: { '.format': { passthrough: { args: true } } } } ],
+            errors: [ { message: 'Unencoded input \'en_us\' used in HTML context' }, ]
+        },
+
+        {
+            code: '$( document )',
+            options: [ { functions: { '$': { htmlInput: true } } } ],
+            errors: [
+                { message: 'Unencoded input \'document\' used in HTML context' },
+            ]
+        },
+        {
+            code: '$( "#item-" + id )',
+            options: [ { functions: { '$': { htmlInput: true, safe: [ 'document' ] } } } ],
+            errors: [
+                { message: 'Unencoded input \'id\' used in HTML context' },
+            ]
+        },
+        {
+            code: 'htmlArrs = foo ? [ [ "<div>" ] ] : [ "div" ]',
+            errors: [
+                { message: 'Unencoded input \'[Array]\' used in HTML context' },
             ]
         }
     ]
