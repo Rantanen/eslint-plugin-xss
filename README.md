@@ -2,6 +2,8 @@
 
 [![NPM version](http://img.shields.io/npm/v/eslint-plugin-xss.svg)](https://www.npmjs.com/package/eslint-plugin-xss)
 [![Build Status](https://travis-ci.org/Rantanen/eslint-plugin-xss.svg?branch=master)](https://travis-ci.org/Rantanen/eslint-plugin-xss)
+[![Codecov](https://codecov.io/gh/Rantanen/eslint-plugin-xss/branch/master/graph/badge.svg)](https://codecov.io/gh/Rantanen/eslint-plugin-xss)
+[![Codacy](https://api.codacy.com/project/badge/grade/13e5c7abeb4545359ca9b02c0e91bb72)](https://www.codacy.com/app/jubjub/eslint-plugin-xss)
 
 Tries to detect XSS issues in codebase before they end up in production.
 
