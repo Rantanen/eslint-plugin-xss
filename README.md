@@ -1,5 +1,8 @@
 # eslint-plugin-xss
 
+[![NPM version](http://img.shields.io/npm/v/eslint-plugin-xss.svg)](https://www.npmjs.com/package/eslint-plugin-xss)
+[![Build Status](https://travis-ci.org/Rantanen/eslint-plugin-xss.svg?branch=master)](https://travis-ci.org/Rantanen/eslint-plugin-xss)
+
 Tries to detect XSS issues in codebase before they end up in production.
 
 ## Installation
