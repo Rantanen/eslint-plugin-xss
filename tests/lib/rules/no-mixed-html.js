@@ -35,6 +35,10 @@ ruleTester.run( 'require-encode', rule, {
             code: '$( html )',
             options: [ { unsafe: [ '$()' ] } ]
         },
+        {
+            code: 'test.html( \'<img src="zwK7XG6.gif">\' )',
+            options: [ { unsafe: [ '.html()' ] } ]
+        },
         'var x = "a" + "b";',
         {
             code: 'var html = "<div>" + encode( foo() ) + "</div>"',
@@ -51,7 +55,6 @@ ruleTester.run( 'require-encode', rule, {
             options: [ { encoders: [ 'encode()' ] } ]
         },
         'asHtml = varHtml',
-        'x = /*safe*/ "This is not <html>"',
         'htmlEncode = function() {}',
         'decode = function( html ) {}',
 
@@ -63,6 +66,24 @@ ruleTester.run( 'require-encode', rule, {
         'text = html ? "a" : "b"',
         'text = html ? foo : bar',
         'html = html ? "<div>" : "b"',
+        {
+            code: 'encoded = "<div>"',
+            options: [ { variableNameRule: [ 'encoded' ] } ]
+        },
+        {
+            code: 'asEncoded = "<div>"',
+            options: [ { variableNameRule: [ 'encoded', 'i' ] } ]
+        },
+
+        'x = /*safe*/ "This is not <html>"',
+        'text = /*safe*/ stuffAsHtml()',
+        'html = /*safe*/ getElement()',
+        'html = /*safe*/ getElement()',
+        'x = /*safe*/ "This is not <html>" + text',
+        'text = /*safe*/ stuffAsHtml() + text',
+        'texttttt = /*safe*/ ( "<div>" + "</div>" )',
+        'obj = { fooHtml: stuffAsHtml() }',
+        'obj = { foo: stuff() }',
     ],
 
     invalid: [
@@ -266,5 +287,118 @@ ruleTester.run( 'require-encode', rule, {
                 { message: 'Unencoded input \'foo\' used in HTML context' },
             ]
         },
+        {
+            code: 'text = encode( "foo" )',
+            options: [ { encoders: [ 'encode()' ] } ],
+            errors: [
+                { message: 'Non-HTML variable \'text\' is used to store raw HTML' }
+            ]
+        },
+        {
+            code: 'var foo = function() { return "<div>"; }',
+            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            errors: [
+                { message: 'Non-HTML function \'foo\' returns HTML content' }
+            ]
+        },
+        {
+            code: 'var foo = function bar() { return "<div>"; }',
+            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            errors: [
+                { message: 'Non-HTML function \'bar\' returns HTML content' }
+            ]
+        },
+        {
+            code: 'function bar() { return "<div>"; }',
+            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            errors: [
+                { message: 'Non-HTML function \'bar\' returns HTML content' }
+            ]
+        },
+        {
+            code: 'function bar() { return barAsHtml(); }',
+            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            errors: [
+                { message: 'Non-HTML function \'bar\' returns HTML content' }
+            ]
+        },
+        {
+            parserOptions: { ecmaVersion: 6 },
+            code: 'var bar = y => "<div>"',
+            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            errors: [
+                { message: 'Non-HTML function \'bar\' returns HTML content' }
+            ]
+        },
+
+        {
+            code: 'var fooAsHtml = function() { return value; }',
+            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            errors: [
+                { message: 'Unencoded input \'value\' used in HTML context' }
+            ]
+        },
+        {
+            code: 'var foo = function barAsHtml() { return input; }',
+            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            errors: [
+                { message: 'Unencoded input \'input\' used in HTML context' }
+            ]
+        },
+        {
+            code: 'function barAsHtml() { return bar; }',
+            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            errors: [
+                { message: 'Unencoded input \'bar\' used in HTML context' }
+            ]
+        },
+        {
+            parserOptions: { ecmaVersion: 6 },
+            code: 'var barAsHtml = y => y',
+            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            errors: [
+                { message: 'Unencoded input \'y\' used in HTML context' }
+            ]
+        },
+
+        {
+            code: 'var foo = fooAsHtml()',
+            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            errors: [
+                { message: 'Non-HTML variable \'foo\' is used to store raw HTML' }
+            ]
+        },
+        {
+            code: 'var html = foo()',
+            options: [ { functionNameRule: [ 'AsHtml$' ] } ],
+            errors: [
+                { message: 'Unencoded return value from function \'foo\' used in HTML context' }
+            ]
+        },
+
+        {
+            code: 'x = /*safe*/ "This is not <html>" + html',
+            errors: [
+                { message: 'Non-HTML variable \'x\' is used to store raw HTML' }
+            ]
+        },
+        {
+            code: 'obj = { fooHtml: stuff() }',
+            errors: [
+                { message: 'Unencoded return value from function \'stuff\' used in HTML context' }
+            ]
+        },
+        {
+            code: 'obj = { fooHtml: obj.stuff() }',
+            errors: [
+                { message: 'Unencoded return value from function \'obj.stuff\' used in HTML context' }
+            ]
+        },
+        {
+            code: 'obj = { foo: stuffAsHtml() }',
+            errors: [
+                { message: 'Non-HTML variable \'foo\' is used to store raw HTML' }
+            ]
+        }
     ]
 } );
