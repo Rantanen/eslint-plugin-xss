@@ -35,7 +35,6 @@ Add `xss` to the plugins section of your `.eslintrc` configuration file. You can
 }
 ```
 
-
 Then configure the rules you want to use under the rules section.
 
 ```json
@@ -48,33 +47,5 @@ Then configure the rules you want to use under the rules section.
 
 ## Supported Rules
 
-###`xss/no-mixed-html`
-
-```json
-"xss/no-mixed-html": [ 2, {
-    "encoders": [ "utils.htmlEncode()", "CSS.escape()", "Number()" ],
-    "unsafe": [ ".html()" ]
-} ];
-```
-
-The rule disallows mixing HTML content and unencoded input. It should fail in
-following scenarios:
-
-```javascript
-var x = '<div>' + input + '</div>';
-$node.html( '<div>' + input + '</div>' );
-```
-
-The rule also uses variable names to convey meaning about the contents.
-Variable names with 'html' are expected to be html encoded. The following will
-fail:
-
-```javascript
-var html = input;
-var text = htmlInput;
-displayValue( htmlInput );
-htmlItems = [ input1, input2 ].join();
-textItems = [ '<div>', input, '</div>' ].join();
-tag = isNumbered ? '<ol>' : '<ul>';
-```
+* [xss/no-mixed-html](docs/rules/no-mixed-html.md): Warn about possible XSS issues.
 
