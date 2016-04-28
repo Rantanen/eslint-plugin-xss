@@ -132,6 +132,12 @@ ruleTester.run( 'require-encode', rule, {
             options: [ { functions: { '$': { htmlInput: true, safe: [ 'document' ] } } } ],
         },
         {
+            code: '$( this ).toggle()',
+            options: [ { functions: {
+                '$': { htmlInput: true, safe: [ 'document', 'this' ] }
+            } } ],
+        },
+        {
             code: '$( "#item-" + CSS.escape( id ) )',
             options: [ { functions: {
                 '$': { htmlInput: true, safe: [ 'document' ] },
