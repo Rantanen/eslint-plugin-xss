@@ -107,12 +107,19 @@ ruleTester.run( 'require-encode', rule, {
 
         'x = /*safe*/ "This is not <html>"',
         'html = "<div>" + /*safe*/ input + "</div>"',
+        'html = "<div>" + /*safe*/ obj.value + "</div>"',
         'text = /*safe*/ stuffAsHtml()',
         'html = /*safe*/ getElement()',
         'html = /*safe*/ getElement()',
         'x = /*safe*/ "This is not <html>" + text',
         'text = /*safe*/ stuffAsHtml() + text',
         'text = /*safe*/ ( "<div>" + "</div>" )',
+        'text = /*safe*/ html[ 0 ]',
+        'html = /*safe*/ window.document[ 0 ]',
+        {
+            code: 'var prompt = $( "<div>" + "<span>" + /* safe */ text + "</span>" + /* safe */ value + "</div>" )',
+            options: [ { functions: { '$': { htmlInput: true } } } ]
+        },
         'obj = { fooHtml: stuffAsHtml() }',
         'obj = { foo: stuff() }',
         {
@@ -236,6 +243,12 @@ ruleTester.run( 'require-encode', rule, {
             } ]
         },
         {
+            code: 'asHtml = text[ 0 ]',
+            errors: [ {
+                message: 'Unencoded input \'text[ 0 ]\' used in HTML context',
+            } ]
+        },
+        {
             code: 'x.html( text )',
             options: [ { functions: { '.html': { htmlInput: true } } } ],
             errors: [ {
@@ -276,6 +289,12 @@ ruleTester.run( 'require-encode', rule, {
 
         {
             code: 'var x = obj.html',
+            errors: [ {
+                message: 'Non-HTML variable \'x\' is used to store raw HTML',
+            } ]
+        },
+        {
+            code: 'x = html[ 0 ]',
             errors: [ {
                 message: 'Non-HTML variable \'x\' is used to store raw HTML',
             } ]
