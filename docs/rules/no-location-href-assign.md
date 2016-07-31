@@ -1,18 +1,18 @@
-# Checks for all assignments to location.href (prevents javascript url based XSS)
+# Checks for all assignments to location.href
 
-Wanted a way to catch XSS issues in code before they end up in production.
+This rule ensures that you are calling escape logic before assigning to location.href property.
 
 ## Rule Details
 
-This rule tries to prevent XSS that can be created by passing user input directly to
+This rule tries to prevent XSS that can be created by assigning some user input directly to
 location.href property. Here is an example of how we can execute any js code in that way;
 
 ```js
-window.location.href = 'javascript:alert('xss')'
+window.location.href = 'javascript:alert("xss")'
 ```
 
 
-The following patterns are considered warnings:
+The following patterns are considered as errors:
 
 ```js
 
@@ -23,7 +23,7 @@ location.href = getNextUrl();
 
 ```
 
-The following patterns are not warnings:
+The following patterns are not errors:
 
 ```js
 // this rule ensures that you are calling escape function before location.href assignment
@@ -36,7 +36,7 @@ location.href = escape('some evil url');
 
 ```js
 "xss/no-mixed-html": [ 2, {
-    "escapeFunc": "escape"
+    "escapeFunc": "escapeHref"
 } ];
 ```
 
@@ -46,7 +46,7 @@ Function name that is used to sanitize user input. 'escape' is used by default.
 
 ## When Not To Use It
 
-If you are not care about XSS vulnerabilities.
+When you are running your code outside of browser environment (node) or you don't care about XSS vulnerabilities.
 
 ## Further Reading
 
