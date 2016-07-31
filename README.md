@@ -48,4 +48,5 @@ Then configure the rules you want to use under the rules section.
 ## Supported Rules
 
 * [xss/no-mixed-html](docs/rules/no-mixed-html.md): Warn about possible XSS issues.
+* [xss/no-location-href-assign](docs/rules/no-location-href-assign.md): Warn when trying to modify location.href.
 
