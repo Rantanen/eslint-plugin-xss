@@ -10,7 +10,8 @@
   "author": "Mikko Rantanen",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha tests --recursive"
+    "test": "mocha tests --recursive",
+    "lint": "eslint ./lib ./tests/"
   },
   "dependencies": {
     "requireindex": "~1.1.0"
