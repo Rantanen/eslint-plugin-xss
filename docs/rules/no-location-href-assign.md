@@ -31,7 +31,8 @@ The following patterns are not errors:
 location.href = escape('some evil url');
 
 ```
-The concrete implementation of escape is up to you and how you will decide to escape location.href value.
+The concrete implementation of escape is up to you and how you will decide to escape location.href value. This rule
+only ensures that you are handling assignment in a proper way (by wrapping the right part with the escape function).
 
 ### Options
 
