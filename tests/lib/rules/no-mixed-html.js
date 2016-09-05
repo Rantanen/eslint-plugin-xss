@@ -42,6 +42,18 @@ ruleTester.run( 'require-encode', rule, {
             code: 'test.html( \'<img src="zwK7XG6.gif">\' )',
             options: [ { functions: { '.html': { htmlInput: true } } } ],
         },
+        {
+            code: 'window.document.write( \'<img src="zwK7XG6.gif">\' )',
+            options: [ { functions: { 'window.document.write': { htmlInput: true } } } ],
+        },
+        {
+            code: 'window.document.write( \'<img src="zwK7XG6.gif">\' )',
+            options: [ { functions: { '.document.write': { htmlInput: true } } } ],
+        },
+        {
+            code: 'window.document.write( \'<img src="zwK7XG6.gif">\' )',
+            options: [ { functions: { '.write': { htmlInput: true } } } ],
+        },
         'var x = "a" + "b";',
         {
             code: 'var html = "<div>" + encode( foo() ) + "</div>"',
@@ -116,6 +128,10 @@ ruleTester.run( 'require-encode', rule, {
         'text = /*safe*/ ( "<div>" + "</div>" )',
         'text = /*safe*/ html[ 0 ]',
         'html = /*safe*/ window.document[ 0 ]',
+        {
+            code: 'if( !$( /*safe*/ document.element ).is() ) {}',
+            options: [ { functions: { '$': { htmlInput: true, safe: [ 'document', 'this', 'window' ] } } } ]
+        },
         {
             code: 'var prompt = $( "<div>" + "<span>" + /* safe */ text + "</span>" + /* safe */ value + "</div>" )',
             options: [ { functions: { '$': { htmlInput: true } } } ]
@@ -229,7 +245,41 @@ ruleTester.run( 'require-encode', rule, {
                 message: 'Unencoded input \'text\' used in HTML context',
             } ]
         },
-
+        {
+            code: 'window.document.write( value )',
+            options: [ { functions: { 'window.document.write': { htmlInput: true } } } ],
+            errors: [ {
+                message: 'Unencoded input \'value\' used in HTML context',
+            } ]
+        },
+        {
+            code: 'window.document.write( value )',
+            options: [ { functions: { '.document.write': { htmlInput: true } } } ],
+            errors: [ {
+                message: 'Unencoded input \'value\' used in HTML context',
+            } ]
+        },
+        {
+            code: 'window.document.write( value )',
+            options: [ { functions: { '.write': { htmlInput: true } } } ],
+            errors: [ {
+                message: 'Unencoded input \'value\' used in HTML context',
+            } ]
+        },
+        {
+            code: 'write( html )',
+            options: [ { functions: { '.write': { htmlInput: true } } } ],
+            errors: [ {
+                message: 'HTML passed in to function \'write\'',
+            } ]
+        },
+        {
+            code: 'document.write( html )',
+            options: [ { functions: { '.document.write': { htmlInput: true } } } ],
+            errors: [ {
+                message: 'HTML passed in to function \'document.write\'',
+            } ]
+        },
         {
             code: 'var asHtml = text',
             errors: [ {
