@@ -30,6 +30,8 @@ ruleTester.run( 'require-encode', rule, {
         'foo( text )',
         'x.foo( text )',
         'html.foo( text )',
+        'f()( text )',
+        'function v() { return console.log( optionator.generateHelp() ); }',
         {
             code: 'test.html( html )',
             options: [ { functions: { '.html': { htmlInput: true, htmlOutput: true } } } ]
@@ -239,6 +241,18 @@ ruleTester.run( 'require-encode', rule, {
             } ]
         },
         {
+            code: 'write( html )',
+            errors: [ {
+                message: 'HTML passed in to function \'write\'',
+            } ]
+        },
+        {
+            code: 'f()( html )',
+            errors: [ {
+                message: 'HTML passed in to function \'f()\'',
+            } ]
+        },
+        {
             code: 'x.html( "<div>" + text + "</div>" )',
             options: [ { functions: { '.html': { htmlInput: true } } } ],
             errors: [ {
@@ -409,6 +423,12 @@ ruleTester.run( 'require-encode', rule, {
         },
         {
             code: 'obj = [ { html: text } ]',
+            errors: [ {
+                message: 'Unencoded input \'text\' used in HTML context',
+            } ]
+        },
+        {
+            code: '{ prepend: "foo <input> <output>" }',
             errors: [ {
                 message: 'Unencoded input \'text\' used in HTML context',
             } ]
