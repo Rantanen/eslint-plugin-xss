@@ -31,6 +31,8 @@ ruleTester.run( 'require-encode', rule, {
         'x.foo( text )',
         'html.foo( text )',
         'f()( text )',
+
+        // TODO: Find a way to add test for lone 'return'.
         'function v() { return console.log( optionator.generateHelp() ); }',
         {
             code: 'test.html( html )',
@@ -428,12 +430,11 @@ ruleTester.run( 'require-encode', rule, {
             } ]
         },
         {
-            code: '{ prepend: "foo <input> <output>" }',
+            code: '_ = { text: "<html>" }',
             errors: [ {
-                message: 'Unencoded input \'text\' used in HTML context',
+                message: 'Non-HTML variable \'text\' is used to store raw HTML',
             } ]
         },
-
         {
             code: 'arr = [ html ]',
             errors: [ {
