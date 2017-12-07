@@ -8,6 +8,7 @@
     "eslint-plugin"
   ],
   "author": "Mikko Rantanen",
+  "repository": "https://github.com/Rantanen/eslint-plugin-xss",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha tests --recursive",
