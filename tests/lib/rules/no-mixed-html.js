@@ -31,6 +31,7 @@ ruleTester.run( 'require-encode', rule, {
         'x.foo( text )',
         'html.foo( text )',
         'f()( text )',
+        'match( /<html>/ )',
 
         // TODO: Find a way to add test for lone 'return'.
         'function v() { return console.log( optionator.generateHelp() ); }',
