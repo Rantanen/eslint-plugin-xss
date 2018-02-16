@@ -37,7 +37,7 @@ only ensures that you are handling assignment in a proper way (by wrapping the r
 ### Options
 
 ```js
-"xss/no-mixed-html": [ 2, {
+"xss/no-location-href-assign": [ 2, {
     "escapeFunc": "escapeHref"
 } ];
 ```
