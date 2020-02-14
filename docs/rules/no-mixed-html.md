@@ -108,7 +108,8 @@ insensitive matching can be defined with a delimiting '/'.
   functions. The jQuery function `$()` is often used with HTML or CSS input,
   which should be encoded - but it may also be used to construct jQuery-lists
   from DOM elements - the two most common usages being: `$( document )` and `$(
-  this )`.
+  this )`. The value should be either `true`/`false` for blanket safety or an
+  array of accepted variable names.
 
 
 ## When Not To Use It

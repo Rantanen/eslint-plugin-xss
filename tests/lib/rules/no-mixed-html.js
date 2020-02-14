@@ -156,6 +156,10 @@ ruleTester.run( 'require-encode', rule, {
             options: [ { functions: { '$': { htmlInput: true, safe: [ 'document' ] } } } ],
         },
         {
+            code: '$( foobar )',
+            options: [ { functions: { '$': { htmlInput: true, safe: true } } } ],
+        },
+        {
             code: '$( ".foo" )',
             options: [ { functions: { '$': { htmlInput: true, safe: [ 'document' ] } } } ],
         },
