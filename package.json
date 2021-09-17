@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-xss",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Validates XSS related issues of mixing HTML and non-HTML content in variables.",
   "keywords": [
     "eslint",
