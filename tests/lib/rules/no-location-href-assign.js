@@ -17,6 +17,10 @@ ruleTester.run( 'no-location-href-assign', rule, {
         {
             code: 'location.href = escape(\'www\')',
             options: [ { escapeFunc: 'escape' } ]
+        },
+        {
+            code: 'location.href = DOMPurify.sanitize(\'www\')',
+            options: [ { escapeFunc: 'DOMPurify.sanitize' } ]
         }
     ],
 
@@ -43,6 +47,14 @@ ruleTester.run( 'no-location-href-assign', rule, {
             errors: [ {
                 message: 'Dangerous location.href assignment can lead to XSS.' +
                     ' Please use escape(\'some location\') as a wrapper for escaping'
+            } ]
+        },
+        {
+            code: 'location.href = \'some location for memberExpression callee\'',
+            options: [ { escapeFunc: 'DOMPurify.sanitize' } ],
+            errors: [ {
+                message: 'Dangerous location.href assignment can lead to XSS.' +
+                    ' Please use DOMPurify.sanitize(\'some location for memberExpression callee\') as a wrapper for escaping'
             } ]
         },
         {
