@@ -12,7 +12,7 @@ Tries to detect XSS issues in codebase before they end up in production.
 You'll first need to install [ESLint](http://eslint.org):
 
 ```
-$ npm i eslint --save-dev
+$ npm install eslint --save-dev
 ```
 
 Next, install `eslint-plugin-xss`:
@@ -42,6 +42,18 @@ Then configure the rules you want to use under the rules section.
     "rules": {
         "xss/rule-name": 2
     }
+}
+```
+
+Or:
+
+Enable all rules by adding the following to your `.eslintrc` configuration file
+
+```json
+{
+    "extends": [
+        "plugin:xss/recommended"
+    ]
 }
 ```
 
