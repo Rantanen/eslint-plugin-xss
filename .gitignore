@@ -2,3 +2,4 @@
 *.swp
 *.log
 .idea
+package-lock.json
