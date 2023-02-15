@@ -70,7 +70,7 @@ var text = textbox.value;
 #### `htmlVariableRules`, `htmlFunctionRules`
 
 `htmlVariableRules` and `htmlFunctionRules` specify the naming convention used
-for storing HTML variables and defining functions returnign HTML values. Both
+for storing HTML variables and defining functions returning HTML values. Both
 of these options are defined as Regex-arrays. The regex options, such as case
 insensitive matching can be defined with a delimiting '/'.
 
