@@ -52,4 +52,4 @@ When you are running your code outside of browser environment (node) or you don'
 
 ## Further Reading
 
-- [XSS Prevention CHeat Sheet - OWASP](https://www.owasp.org/index.php/XSS_%28Cross_Site_Scripting%29_Prevention_Cheat_Sheet)
+- [XSS Prevention CHeat Sheet - OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
