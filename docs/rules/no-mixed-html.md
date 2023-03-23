@@ -70,7 +70,7 @@ var text = textbox.value;
 #### `htmlVariableRules`, `htmlFunctionRules`
 
 `htmlVariableRules` and `htmlFunctionRules` specify the naming convention used
-for storing HTML variables and defining functions returnign HTML values. Both
+for storing HTML variables and defining functions returning HTML values. Both
 of these options are defined as Regex-arrays. The regex options, such as case
 insensitive matching can be defined with a delimiting '/'.
 
@@ -119,4 +119,4 @@ safely disable this rule.
 
 ## Further Reading
 
-- [XSS Prevention CHeat Sheet - OWASP](https://www.owasp.org/index.php/XSS_%28Cross_Site_Scripting%29_Prevention_Cheat_Sheet)
+- [XSS Prevention CHeat Sheet - OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
