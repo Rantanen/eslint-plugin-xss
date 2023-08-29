@@ -15,8 +15,8 @@ ruleTester.run( 'no-location-href-assign', rule, {
         'someLink.href = \'www\'',
         'href = \'wwww\'',
         {
-            code: 'location.href = escape(\'www\')',
-            options: [ { escapeFunc: 'escape' } ]
+            code: 'location.href = encodeURI(\'www\')',
+            options: [ { escapeFunc: 'encodeURI' } ]
         },
         {
             code: 'location.href = DOMPurify.sanitize(\'www\')',
@@ -26,27 +26,27 @@ ruleTester.run( 'no-location-href-assign', rule, {
 
     invalid: [
         {
-            code: 'location.href = wrapper(escape(\'www\'))',
+            code: 'location.href = wrapper(encodeURI(\'www\'))',
             options: [ { escapeFunc: 'escapeXSS' } ],
             errors: [ {
                 message: 'Dangerous location.href assignment can lead to XSS.' +
-                ' Please use escapeXSS(wrapper(escape(\'www\'))) ' +
+                ' Please use escapeXSS(wrapper(encodeURI(\'www\'))) ' +
                 'as a wrapper for escaping'
             } ]
         },
         {
             code: 'location.href = wrapper(\'www\')',
-            options: [ { escapeFunc: 'escape' } ],
+            options: [ { escapeFunc: 'encodeURI' } ],
             errors: [ {
                 message: 'Dangerous location.href assignment can lead to XSS.' +
-                ' Please use escape(wrapper(\'www\')) as a wrapper for escaping'
+                ' Please use encodeURI(wrapper(\'www\')) as a wrapper for escaping'
             } ]
         },
         {
             code: 'location.href = \'some location\'',
             errors: [ {
                 message: 'Dangerous location.href assignment can lead to XSS.' +
-                    ' Please use escape(\'some location\') as a wrapper for escaping'
+                    ' Please use encodeURI(\'some location\') as a wrapper for escaping'
             } ]
         },
         {
@@ -61,28 +61,28 @@ ruleTester.run( 'no-location-href-assign', rule, {
             code: 'window.location.href = \'some location\'',
             errors: [ {
                 message: 'Dangerous location.href assignment can lead to XSS.' +
-                    ' Please use escape(\'some location\') as a wrapper for escaping'
+                    ' Please use encodeURI(\'some location\') as a wrapper for escaping'
             } ]
         },
         {
             code: 'document.location.href = \'some location\'',
             errors: [ {
                 message: 'Dangerous location.href assignment can lead to XSS.' +
-                    ' Please use escape(\'some location\') as a wrapper for escaping'
+                    ' Please use encodeURI(\'some location\') as a wrapper for escaping'
             } ]
         },
         {
             code: 'window.document.location.href = \'some location\'',
             errors: [ {
                 message: 'Dangerous location.href assignment can lead to XSS.' +
-                    ' Please use escape(\'some location\') as a wrapper for escaping'
+                    ' Please use encodeURI(\'some location\') as a wrapper for escaping'
             } ]
         },
         {
             code: 'window.document.location.href = getNextUrl()',
             errors: [ {
                 message: 'Dangerous location.href assignment can lead to XSS.' +
-                    ' Please use escape(getNextUrl()) as a wrapper for escaping'
+                    ' Please use encodeURI(getNextUrl()) as a wrapper for escaping'
             } ]
         }
     ]

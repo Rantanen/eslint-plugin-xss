@@ -1,6 +1,6 @@
 # Checks for all assignments to location.href
 
-This rule ensures that you are calling escape logic before assigning to location.href property.
+This rule ensures that you are calling encodeURI logic before assigning to location.href property.
 
 ## Rule Details
 
@@ -26,13 +26,13 @@ location.href = getNextUrl();
 The following patterns are not errors:
 
 ```js
-// this rule ensures that you are calling escape function before location.href assignment
-// 'escape' name can be configured via options.
-location.href = escape('some evil url');
+// this rule ensures that you are calling encodeURI function before location.href assignment
+// 'encodeURI' name can be configured via options.
+location.href = encodeURI('some evil url');
 
 ```
 The concrete implementation of escape is up to you and how you will decide to escape location.href value. This rule
-only ensures that you are handling assignment in a proper way (by wrapping the right part with the escape function).
+only ensures that you are handling assignment in a proper way (by wrapping the right part with the encodeURI function).
 
 ### Options
 
@@ -43,7 +43,7 @@ only ensures that you are handling assignment in a proper way (by wrapping the r
 ```
 
 ### escapeFunc (optional)
-Function name that is used to sanitize user input. 'escape' is used by default.
+Function name that is used to sanitize user input. 'encodeURI' is used by default.
 
 
 ## When Not To Use It
